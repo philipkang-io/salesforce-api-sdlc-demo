@@ -95,3 +95,84 @@ actions:
   - target: $.components.securitySchemes.bearerAuth
     update:
       x-fern-playground-description: Paste an access token from the External Client App's client credentials flow (see the Quickstart). The demo presenter uses `make token-copy`, which copies a fresh token to the clipboard.
+  # Try it examples for the remaining operations. Demo members in the org:
+  # Ada Lovelace (M-1001, read-only, also used by the Agentforce agent) and
+  # Grace Hopper (M-1002, the one to update).
+  - target: $.paths['/sobjects/{sObject}/{id}'].get.parameters[?(@.name=='id')]
+    update:
+      example: a00fj00002l1vwEAAQ
+      description: The record ID. The example is Ada Lovelace (M-1001), a demo member.
+  - target: $.paths['/sobjects/{sObject}/{id}'].get.parameters[?(@.name=='fields')]
+    update:
+      example: Name,Member_Number__c,Tier__c,Points_Balance__c,Enrolled_On__c
+  - target: $.paths['/sobjects/{sObject}/{id}'].patch.parameters[?(@.name=='id')]
+    update:
+      example: a00fj00002l1yIzAAI
+      description: The record ID. The example is Grace Hopper (M-1002), a demo member you can update.
+  # Put a Loyalty Member example first (Try it uses the first one); keep
+  # Salesforce's Account and Contact examples after it.
+  - target: $.paths['/sobjects/{sObject}/{id}'].patch.requestBody.content['application/json'].examples
+    remove: true
+  - target: $.paths['/sobjects/{sObject}/{id}'].patch.requestBody.content['application/json']
+    update:
+      examples:
+        Loyalty_Member__c:
+          summary: Loyalty Member Example
+          value:
+            Tier__c: Gold
+            Points_Balance__c: 12000
+        Account:
+          summary: Account Example
+          value:
+            Name: Test Account
+            apiSObjectType: Account
+        Contact:
+          summary: Contact Example
+          value:
+            FirstName: Some
+            LastName: Name
+            apiSObjectType: Contact
+  - target: $.paths['/sobjects/{sObject}/{id}'].delete.parameters[?(@.name=='id')]
+    update:
+      description: The record ID. To try it, create a record first and use the id it returns.
+  # Put a Loyalty Member example first (Try it uses the first one); keep
+  # Salesforce's Account and Contact examples after it.
+  - target: $.paths['/sobjects/{sObject}'].post.requestBody.content['application/json'].examples
+    remove: true
+  - target: $.paths['/sobjects/{sObject}'].post.requestBody.content['application/json']
+    update:
+      examples:
+        Loyalty_Member__c:
+          summary: Loyalty Member Example
+          value:
+            Name: SDLC-Demo-TryIt
+            Tier__c: Silver
+            Points_Balance__c: 500
+            Enrolled_On__c: '2026-11-18'
+        Account:
+          summary: Account Example
+          value:
+            Name: Test Account
+            apiSObjectType: Account
+        Contact:
+          summary: Contact Example
+          value:
+            FirstName: Some
+            LastName: Name
+            apiSObjectType: Contact
+  - target: $.paths['/sobjects/{sObject}/updated'].get.parameters[?(@.name=='start')]
+    update:
+      example: '2026-11-01T00:00:00Z'
+  - target: $.paths['/sobjects/{sObject}/updated'].get.parameters[?(@.name=='end')]
+    update:
+      example: '2026-11-18T23:59:00Z'
+  - target: $.paths['/sobjects/{sObject}/deleted'].get.parameters[?(@.name=='start')]
+    update:
+      example: '2026-11-01T00:00:00Z'
+  - target: $.paths['/sobjects/{sObject}/deleted'].get.parameters[?(@.name=='end')]
+    update:
+      example: '2026-11-18T23:59:00Z'
+  # Loyalty_Member__c has no file field, so Try it cannot succeed here.
+  - target: $.paths['/sobjects/{sObject}/{id}/{blobField}'].get
+    update:
+      x-fern-explorer: false

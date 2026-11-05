@@ -1378,7 +1378,16 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              $ref: '#/components/schemas/SObject'
             examples:
+              Loyalty_Member__c:
+                summary: Loyalty Member Example
+                value:
+                  Name: SDLC-Demo-TryIt
+                  Tier__c: Silver
+                  Points_Balance__c: 500
+                  Enrolled_On__c: '2026-11-18'
               Account:
                 summary: Account Example
                 value:
@@ -1390,8 +1399,6 @@ paths:
                   FirstName: Some
                   LastName: Name
                   apiSObjectType: Contact
-            schema:
-              $ref: '#/components/schemas/SObject'
         required: true
       responses:
         '201':
@@ -1488,12 +1495,14 @@ paths:
           schema:
             format: date-time
             type: string
+          example: '2026-11-01T00:00:00Z'
         - in: query
           name: end
           required: true
           schema:
             format: date-time
             type: string
+          example: '2026-11-18T23:59:00Z'
       responses:
         '200':
           content:
@@ -1743,12 +1752,14 @@ paths:
           schema:
             format: date-time
             type: string
+          example: '2026-11-01T00:00:00Z'
         - in: query
           name: end
           required: true
           schema:
             format: date-time
             type: string
+          example: '2026-11-18T23:59:00Z'
       responses:
         '200':
           content:
@@ -1881,7 +1892,7 @@ paths:
             $ref: '#/components/schemas/SObjectType'
           x-fern-default: Loyalty_Member__c
           example: Loyalty_Member__c
-        - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
+        - description: The record ID. To try it, create a record first and use the id it returns.
           in: path
           name: id
           required: true
@@ -1969,18 +1980,20 @@ paths:
             $ref: '#/components/schemas/SObjectType'
           x-fern-default: Loyalty_Member__c
           example: Loyalty_Member__c
-        - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
+        - description: The record ID. The example is Ada Lovelace (M-1001), a demo member.
           in: path
           name: id
           required: true
           schema:
             type: string
+          example: a00fj00002l1vwEAAQ
         - description: A comma-delimited list of fields to get values for. For example, ?fields=name,description,numberofemployees,industry. An optional query parameter that can only be used with GET.
           in: query
           name: fields
           required: false
           schema:
             type: string
+          example: Name,Member_Number__c,Tier__c,Points_Balance__c,Enrolled_On__c
         - description: 'An optional header specifying a date and time. The request returns records that have been modified after that date and time. The format is EEE, dd MMM yyyy HH:mm:ss z For example: If-Modified-Since: Mon, 30 Nov 2020 08:34:54 MST.'
           in: header
           name: If-Modified-Since
@@ -2098,12 +2111,13 @@ paths:
             $ref: '#/components/schemas/SObjectType'
           x-fern-default: Loyalty_Member__c
           example: Loyalty_Member__c
-        - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
+        - description: The record ID. The example is Grace Hopper (M-1002), a demo member you can update.
           in: path
           name: id
           required: true
           schema:
             type: string
+          example: a00fj00002l1yIzAAI
         - description: 'An optional header, which can only be used with PATCH, specifying the format for the request and response. Possible choices are: Content-Type: application/json Content-Type: application/xml'
           in: header
           name: Content-Type
@@ -2113,7 +2127,14 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              $ref: '#/components/schemas/SObject'
             examples:
+              Loyalty_Member__c:
+                summary: Loyalty Member Example
+                value:
+                  Tier__c: Gold
+                  Points_Balance__c: 12000
               Account:
                 summary: Account Example
                 value:
@@ -2125,8 +2146,6 @@ paths:
                   FirstName: Some
                   LastName: Name
                   apiSObjectType: Contact
-            schema:
-              $ref: '#/components/schemas/SObject'
         required: true
       responses:
         '204':
@@ -2299,6 +2318,7 @@ paths:
       description: Returns the binary content of a file field, such as an attachment body.
       tags:
         - Records
+      x-fern-explorer: false
     x-sfdc:
       api-domain: Platform
       api-sub-domain: SObjects
