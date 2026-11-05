@@ -1471,7 +1471,6 @@ paths:
                   $ref: '#/components/schemas/RestApiError'
                 type: array
           description: Status Code 503
-      summary: Create a record
       description: Creates a record of the given object and returns its ID.
       tags:
         - Records

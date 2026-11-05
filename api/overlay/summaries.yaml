@@ -20,7 +20,6 @@ actions:
       tags: [Object metadata]
   - target: $.paths['/sobjects/{sObject}'].post
     update:
-      summary: Create a record
       description: Creates a record of the given object and returns its ID.
       tags: [Records]
   - target: $.paths['/sobjects/{sObject}/{id}'].get
