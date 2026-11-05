@@ -29,7 +29,7 @@ export async function getToken(env = loadEnv()) {
   return { accessToken: body.access_token, instanceUrl: body.instance_url, scope: body.scope };
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const { instanceUrl, scope } = await getToken();
     console.log(`sf-token: ok (instance ${instanceUrl}, scope "${scope}")`);

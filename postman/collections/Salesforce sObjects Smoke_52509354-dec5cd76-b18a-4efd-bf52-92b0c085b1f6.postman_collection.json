@@ -14,10 +14,68 @@
           "script": {
             "type": "text/javascript",
             "exec": [
+              "// ── Existing tests ──────────────────────────────────────────────────────────",
               "pm.test('Status is 200', () => pm.response.to.have.status(200));",
               "const fields = pm.response.json().fields.map((f) => f.name);",
               "for (const name of ['Member_Number__c', 'Tier__c', 'Points_Balance__c', 'Enrolled_On__c']) {",
               "  pm.test(`Field ${name} exists`, () => pm.expect(fields).to.include(name));",
+              "}",
+              "",
+              "// ── New additive coverage ────────────────────────────────────────────────────",
+              "// Response time",
+              "pm.test('Response time is below 3000 ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+              "",
+              "// Required top-level body fields and their types",
+              "pm.test('Body has name (string)', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('name').that.is.a('string');",
+              "});",
+              "pm.test('Body has label (string)', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('label').that.is.a('string');",
+              "});",
+              "pm.test('Body has fields (array)', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('fields').that.is.an('array');",
+              "});",
+              "pm.test('Body has keyPrefix (string or null)', () => {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property('keyPrefix');",
+              "  if (body.keyPrefix !== null) {",
+              "    pm.expect(body.keyPrefix).to.be.a('string');",
+              "  }",
+              "});",
+              "",
+              "// Field-level type assertions for the four required custom fields",
+              "const fieldMap = {};",
+              "pm.response.json().fields.forEach((f) => { fieldMap[f.name] = f; });",
+              "pm.test('Member_Number__c is a text field', () => {",
+              "  pm.expect(fieldMap['Member_Number__c']).to.exist;",
+              "  pm.expect(fieldMap['Member_Number__c'].type).to.equal('string');",
+              "});",
+              "pm.test('Tier__c is a picklist field', () => {",
+              "  pm.expect(fieldMap['Tier__c']).to.exist;",
+              "  pm.expect(fieldMap['Tier__c'].type).to.equal('picklist');",
+              "});",
+              "pm.test('Points_Balance__c is a number field', () => {",
+              "  pm.expect(fieldMap['Points_Balance__c']).to.exist;",
+              "  pm.expect(fieldMap['Points_Balance__c'].type).to.equal('double');",
+              "});",
+              "pm.test('Enrolled_On__c is a date field', () => {",
+              "  pm.expect(fieldMap['Enrolled_On__c']).to.exist;",
+              "  pm.expect(fieldMap['Enrolled_On__c'].type).to.equal('date');",
+              "});",
+              "",
+              "// Salesforce error-format check on unexpected 4xx/5xx",
+              "if (pm.response.code >= 400) {",
+              "  pm.test('[Unexpected error] Body is Salesforce error array', () => {",
+              "    const errors = pm.response.json();",
+              "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+              "    errors.forEach((e) => {",
+              "      pm.expect(e).to.have.property('errorCode').that.is.a('string');",
+              "      pm.expect(e).to.have.property('message').that.is.a('string');",
+              "    });",
+              "  });",
               "}"
             ]
           }
@@ -40,7 +98,10 @@
         },
         "description": "describeSObject: the object exists and exposes the four custom fields the integration depends on."
       },
-      "response": []
+      "response": [],
+      "createdAt": "2026-11-05T06:37:50.000Z",
+      "updatedAt": "2026-11-05T07:57:01.000Z",
+      "uid": "52509354-5da4f2fb-b3b8-426f-817c-c22336043839"
     },
     {
       "name": "Create Loyalty Member",
@@ -50,11 +111,33 @@
           "script": {
             "type": "text/javascript",
             "exec": [
+              "// ── Existing tests ──────────────────────────────────────────────────────────",
               "pm.test('Status is 201', () => pm.response.to.have.status(201));",
               "const body = pm.response.json();",
               "pm.test('Create succeeded', () => pm.expect(body.success).to.equal(true));",
               "pm.test('Returns a record ID', () => pm.expect(body.id).to.match(/^[a-zA-Z0-9]{18}$/));",
-              "pm.collectionVariables.set('memberId', body.id);"
+              "pm.collectionVariables.set('memberId', body.id);",
+              "",
+              "// ── New additive coverage ────────────────────────────────────────────────────",
+              "// Response time",
+              "pm.test('Response time is below 3000 ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+              "",
+              "// Required body fields and types",
+              "pm.test('id is a string', () => pm.expect(pm.response.json().id).to.be.a('string'));",
+              "pm.test('success is boolean true', () => pm.expect(pm.response.json().success).to.be.a('boolean').and.to.equal(true));",
+              "pm.test('errors is an array', () => pm.expect(pm.response.json().errors).to.be.an('array'));",
+              "",
+              "// Salesforce error-format check on unexpected 4xx/5xx",
+              "if (pm.response.code >= 400) {",
+              "  pm.test('[Unexpected error] Body is Salesforce error array', () => {",
+              "    const errors = pm.response.json();",
+              "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+              "    errors.forEach((e) => {",
+              "      pm.expect(e).to.have.property('errorCode').that.is.a('string');",
+              "      pm.expect(e).to.have.property('message').that.is.a('string');",
+              "    });",
+              "  });",
+              "}"
             ]
           }
         }
@@ -84,7 +167,10 @@
         },
         "description": "createSObject: returns 201 with the new record ID."
       },
-      "response": []
+      "response": [],
+      "createdAt": "2026-11-05T06:37:50.000Z",
+      "updatedAt": "2026-11-05T07:57:02.000Z",
+      "uid": "52509354-d0feb66e-9e6f-4fcb-b2eb-f4fb670bfdf0"
     },
     {
       "name": "Get Loyalty Member",
@@ -94,12 +180,39 @@
           "script": {
             "type": "text/javascript",
             "exec": [
+              "// ── Existing tests ──────────────────────────────────────────────────────────",
               "pm.test('Status is 200', () => pm.response.to.have.status(200));",
               "const m = pm.response.json();",
               "pm.test('Name matches', () => pm.expect(m.Name).to.equal('SDLC-Demo-' + pm.collectionVariables.get('runId')));",
               "pm.test('Tier is Gold', () => pm.expect(m.Tier__c).to.equal('Gold'));",
               "pm.test('Points balance is 10000', () => pm.expect(m.Points_Balance__c).to.equal(10000));",
-              "pm.test('Enrolled on 2026-11-18', () => pm.expect(m.Enrolled_On__c).to.equal('2026-11-18'));"
+              "pm.test('Enrolled on 2026-11-18', () => pm.expect(m.Enrolled_On__c).to.equal('2026-11-18'));",
+              "",
+              "// ── New additive coverage ────────────────────────────────────────────────────",
+              "// Response time",
+              "pm.test('Response time is below 3000 ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+              "",
+              "// Required fields present",
+              "pm.test('Id field is present and is a string', () => {",
+              "  pm.expect(m).to.have.property('Id').that.is.a('string');",
+              "});",
+              "pm.test('Name is a string', () => pm.expect(m.Name).to.be.a('string'));",
+              "pm.test('Member_Number__c is a string', () => pm.expect(m.Member_Number__c).to.be.a('string'));",
+              "pm.test('Tier__c is a string', () => pm.expect(m.Tier__c).to.be.a('string'));",
+              "pm.test('Points_Balance__c is a number', () => pm.expect(m.Points_Balance__c).to.be.a('number'));",
+              "pm.test('Enrolled_On__c is a string', () => pm.expect(m.Enrolled_On__c).to.be.a('string'));",
+              "",
+              "// Salesforce error-format check on unexpected 4xx/5xx",
+              "if (pm.response.code >= 400) {",
+              "  pm.test('[Unexpected error] Body is Salesforce error array', () => {",
+              "    const errors = pm.response.json();",
+              "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+              "    errors.forEach((e) => {",
+              "      pm.expect(e).to.have.property('errorCode').that.is.a('string');",
+              "      pm.expect(e).to.have.property('message').that.is.a('string');",
+              "    });",
+              "  });",
+              "}"
             ]
           }
         }
@@ -127,7 +240,10 @@
         },
         "description": "getSObject: the record reads back with the values just written."
       },
-      "response": []
+      "response": [],
+      "createdAt": "2026-11-05T06:37:50.000Z",
+      "updatedAt": "2026-11-05T07:57:02.000Z",
+      "uid": "52509354-c88fb33b-e768-44b8-ac1f-bb490be5ceae"
     },
     {
       "name": "Upgrade Loyalty Member to Platinum",
@@ -137,7 +253,29 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Status is 204', () => pm.response.to.have.status(204));"
+              "// ── Existing tests ──────────────────────────────────────────────────────────",
+              "pm.test('Status is 204', () => pm.response.to.have.status(204));",
+              "",
+              "// ── New additive coverage ────────────────────────────────────────────────────",
+              "// Response time",
+              "pm.test('Response time is below 3000 ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+              "",
+              "// 204 means no body — assert body is empty",
+              "pm.test('Response body is empty (no content)', () => {",
+              "  pm.expect(pm.response.text()).to.equal('');",
+              "});",
+              "",
+              "// Salesforce error-format check on unexpected 4xx/5xx",
+              "if (pm.response.code >= 400) {",
+              "  pm.test('[Unexpected error] Body is Salesforce error array', () => {",
+              "    const errors = pm.response.json();",
+              "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+              "    errors.forEach((e) => {",
+              "      pm.expect(e).to.have.property('errorCode').that.is.a('string');",
+              "      pm.expect(e).to.have.property('message').that.is.a('string');",
+              "    });",
+              "  });",
+              "}"
             ]
           }
         }
@@ -168,7 +306,10 @@
         },
         "description": "updateSObject: returns 204 with no body."
       },
-      "response": []
+      "response": [],
+      "createdAt": "2026-11-05T06:37:50.000Z",
+      "updatedAt": "2026-11-05T07:57:03.000Z",
+      "uid": "52509354-e1df2caf-2336-4d84-80fb-482a63ccb1f9"
     },
     {
       "name": "Get upgraded Loyalty Member",
@@ -178,10 +319,31 @@
           "script": {
             "type": "text/javascript",
             "exec": [
+              "// ── Existing tests ──────────────────────────────────────────────────────────",
               "pm.test('Status is 200', () => pm.response.to.have.status(200));",
               "const m = pm.response.json();",
               "pm.test('Tier is Platinum', () => pm.expect(m.Tier__c).to.equal('Platinum'));",
-              "pm.test('Points balance is 25000', () => pm.expect(m.Points_Balance__c).to.equal(25000));"
+              "pm.test('Points balance is 25000', () => pm.expect(m.Points_Balance__c).to.equal(25000));",
+              "",
+              "// ── New additive coverage ────────────────────────────────────────────────────",
+              "// Response time",
+              "pm.test('Response time is below 3000 ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+              "",
+              "// Field type assertions",
+              "pm.test('Tier__c is a string', () => pm.expect(m.Tier__c).to.be.a('string'));",
+              "pm.test('Points_Balance__c is a number', () => pm.expect(m.Points_Balance__c).to.be.a('number'));",
+              "",
+              "// Salesforce error-format check on unexpected 4xx/5xx",
+              "if (pm.response.code >= 400) {",
+              "  pm.test('[Unexpected error] Body is Salesforce error array', () => {",
+              "    const errors = pm.response.json();",
+              "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+              "    errors.forEach((e) => {",
+              "      pm.expect(e).to.have.property('errorCode').that.is.a('string');",
+              "      pm.expect(e).to.have.property('message').that.is.a('string');",
+              "    });",
+              "  });",
+              "}"
             ]
           }
         }
@@ -209,7 +371,10 @@
         },
         "description": "getSObject: the update is visible."
       },
-      "response": []
+      "response": [],
+      "createdAt": "2026-11-05T06:37:50.000Z",
+      "updatedAt": "2026-11-05T07:57:04.000Z",
+      "uid": "52509354-e50ffbba-ec60-42da-8b04-9203d16543f4"
     },
     {
       "name": "Delete Loyalty Member",
@@ -219,7 +384,29 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Status is 204', () => pm.response.to.have.status(204));"
+              "// ── Existing tests ──────────────────────────────────────────────────────────",
+              "pm.test('Status is 204', () => pm.response.to.have.status(204));",
+              "",
+              "// ── New additive coverage ────────────────────────────────────────────────────",
+              "// Response time",
+              "pm.test('Response time is below 3000 ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+              "",
+              "// 204 means no body — assert body is empty",
+              "pm.test('Response body is empty (no content)', () => {",
+              "  pm.expect(pm.response.text()).to.equal('');",
+              "});",
+              "",
+              "// Salesforce error-format check on unexpected 4xx/5xx",
+              "if (pm.response.code >= 400) {",
+              "  pm.test('[Unexpected error] Body is Salesforce error array', () => {",
+              "    const errors = pm.response.json();",
+              "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+              "    errors.forEach((e) => {",
+              "      pm.expect(e).to.have.property('errorCode').that.is.a('string');",
+              "      pm.expect(e).to.have.property('message').that.is.a('string');",
+              "    });",
+              "  });",
+              "}"
             ]
           }
         }
@@ -241,7 +428,10 @@
         },
         "description": "deleteSObject: returns 204."
       },
-      "response": []
+      "response": [],
+      "createdAt": "2026-11-05T06:37:50.000Z",
+      "updatedAt": "2026-11-05T07:57:04.000Z",
+      "uid": "52509354-a8fe96ad-9d49-4aa6-ae7d-3ccd451462bb"
     },
     {
       "name": "Deleted Loyalty Member is gone",
@@ -251,11 +441,30 @@
           "script": {
             "type": "text/javascript",
             "exec": [
+              "// ── Existing tests ──────────────────────────────────────────────────────────",
               "pm.test('Status is 404', () => pm.response.to.have.status(404));",
               "const errors = pm.response.json();",
               "pm.test('Error body is an array with an errorCode', () => {",
               "  pm.expect(errors).to.be.an('array').that.is.not.empty;",
               "  pm.expect(errors[0]).to.have.property('errorCode');",
+              "});",
+              "",
+              "// ── New additive coverage ────────────────────────────────────────────────────",
+              "// Response time",
+              "pm.test('Response time is below 3000 ms', () => pm.expect(pm.response.responseTime).to.be.below(3000));",
+              "",
+              "// Full Salesforce error-format validation (all entries)",
+              "pm.test('Error body is a non-empty JSON array', () => {",
+              "  pm.expect(errors).to.be.an('array').that.is.not.empty;",
+              "});",
+              "pm.test('Every error entry has string errorCode', () => {",
+              "  errors.forEach((e) => pm.expect(e).to.have.property('errorCode').that.is.a('string'));",
+              "});",
+              "pm.test('Every error entry has string message', () => {",
+              "  errors.forEach((e) => pm.expect(e).to.have.property('message').that.is.a('string'));",
+              "});",
+              "pm.test('First error entry is an object', () => {",
+              "  pm.expect(errors[0]).to.be.an('object');",
               "});"
             ]
           }
@@ -278,7 +487,10 @@
         },
         "description": "getSObject on a deleted record returns 404 with Salesforce's error format."
       },
-      "response": []
+      "response": [],
+      "createdAt": "2026-11-05T06:37:50.000Z",
+      "updatedAt": "2026-11-05T07:57:05.000Z",
+      "uid": "52509354-a45f6206-d55e-4de5-bd6e-febeb0de8c93"
     }
   ],
   "auth": {
