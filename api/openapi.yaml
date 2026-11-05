@@ -1141,7 +1141,6 @@ components:
         - Loyalty_Member__c
         - Opportunity
       type: string
-      default: Loyalty_Member__c
     SaveResult:
       properties:
         errors:
@@ -1275,6 +1274,7 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
+          x-fern-default: Loyalty_Member__c
       responses:
         '200':
           content:
@@ -1372,6 +1372,7 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
+          x-fern-default: Loyalty_Member__c
       requestBody:
         content:
           application/json:
@@ -1477,6 +1478,7 @@ paths:
           required: true
           schema:
             type: string
+          x-fern-default: Loyalty_Member__c
         - in: query
           name: start
           required: true
@@ -1621,6 +1623,7 @@ paths:
           required: true
           schema:
             type: string
+          x-fern-default: Loyalty_Member__c
         - description: 'An optional header specifying a date and time. The request returns records that have been modified after that date and time. The format is EEE, dd MMM yyyy HH:mm:ss z. For example: If-Modified-Since: Mon, 30 Nov 2020 08:34:54 MST.'
           in: header
           name: If-Modified-Since
@@ -1728,6 +1731,7 @@ paths:
           required: true
           schema:
             type: string
+          x-fern-default: Loyalty_Member__c
         - in: query
           name: start
           required: true
@@ -1870,6 +1874,7 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
+          x-fern-default: Loyalty_Member__c
         - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
           in: path
           name: id
@@ -1956,6 +1961,7 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
+          x-fern-default: Loyalty_Member__c
         - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
           in: path
           name: id
@@ -2083,6 +2089,7 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
+          x-fern-default: Loyalty_Member__c
         - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
           in: path
           name: id
@@ -2196,6 +2203,7 @@ paths:
           required: true
           schema:
             type: string
+          x-fern-default: Loyalty_Member__c
         - in: path
           name: id
           required: true
