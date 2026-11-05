@@ -1141,6 +1141,7 @@ components:
         - Loyalty_Member__c
         - Opportunity
       type: string
+      default: Loyalty_Member__c
     SaveResult:
       properties:
         errors:
@@ -1205,6 +1206,7 @@ components:
       description: Use Session Id or Access Token as valid bearer token to authenticate with Salesforce. Access Token could be retrieved via any supported OAuth2 flows listed or not listed here (e.g. JWT Bearer Token Flow).To obtain a session ID, you can use the SOAP API login() call or through the Salesforce CLI.
       scheme: bearer
       type: http
+      x-fern-playground-description: Paste an access token from the External Client App's client credentials flow (see the Quickstart). The demo presenter uses `make token-copy`, which copies a fresh token to the clipboard.
     oAuth2:
       description: 'For more information on all supported OAuth Flows, please see ''https://help.salesforce.com/articleView?id=remoteaccess_oauth_flows.htm&type=5''. For more information on all available scope options, please see ''https://help.salesforce.com/articleView?id=remoteaccess_oauth_tokens_scopes.htm&type=5#oauth_scopes''. '
       flows:

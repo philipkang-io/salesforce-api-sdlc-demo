@@ -53,3 +53,11 @@ actions:
       summary: List deleted records
       description: Returns the IDs of records deleted between the start and end times. Use it to sync deletions.
       tags: [Change tracking]
+  # Fern API Explorer ("Try it"): default the object to Loyalty_Member__c and
+  # tell people where the token comes from.
+  - target: $.components.schemas.SObjectType
+    update:
+      default: Loyalty_Member__c
+  - target: $.components.securitySchemes.bearerAuth
+    update:
+      x-fern-playground-description: Paste an access token from the External Client App's client credentials flow (see the Quickstart). The demo presenter uses `make token-copy`, which copies a fresh token to the clipboard.

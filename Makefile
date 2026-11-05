@@ -1,7 +1,7 @@
 # One command surface for local work and CI. Run `make help`.
 
 .DEFAULT_GOAL := help
-.PHONY: help setup token generate build build-check lint compat check smoke cleanup
+.PHONY: help setup token token-copy generate build build-check lint compat check smoke cleanup
 
 help: ## List targets
 	@awk 'BEGIN{FS=":.*##"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  %-12s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -12,6 +12,9 @@ setup: ## Install dependencies
 
 token: ## Check the Salesforce connection (the token is never printed)
 	@npm run --silent token
+
+token-copy: ## Copy a fresh Salesforce token to the clipboard (never displayed)
+	@node scripts/sf-token.mjs --copy
 
 generate: ## Regenerate api/source/openapi.json from the Salesforce org
 	@npm run --silent generate
