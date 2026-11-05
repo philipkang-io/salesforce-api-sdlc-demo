@@ -4,6 +4,9 @@
 //
 // Import getToken() from other scripts, or run directly to check the connection:
 //   node scripts/sf-token.mjs
+// --copy puts the token on the macOS clipboard (pbcopy) without displaying it,
+// for pasting into an API Explorer such as the docs site's "Try it".
+import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { loadEnv, requireEnv } from "./lib/env.mjs";
 
@@ -31,8 +34,14 @@ export async function getToken(env = loadEnv()) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    const { instanceUrl, scope } = await getToken();
-    console.log(`sf-token: ok (instance ${instanceUrl}, scope "${scope}")`);
+    const { accessToken, instanceUrl, scope } = await getToken();
+    if (process.argv.includes("--copy")) {
+      const copied = spawnSync("pbcopy", { input: accessToken });
+      if (copied.status !== 0) throw new Error("pbcopy failed; --copy needs macOS");
+      console.log(`sf-token: token copied to the clipboard (instance ${instanceUrl}, valid about 2 hours)`);
+    } else {
+      console.log(`sf-token: ok (instance ${instanceUrl}, scope "${scope}")`);
+    }
   } catch (error) {
     console.error(`sf-token: ${error.message}`);
     process.exit(1);

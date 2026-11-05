@@ -1,0 +1,25 @@
+---
+title: How these docs stay current
+subtitle: Nobody edits the API reference by hand.
+---
+
+The API reference on this site is built from the same OpenAPI spec that the tests and pull-request checks use.
+
+<Steps>
+  <Step title="The org generates the spec">
+    Salesforce's REST API OpenAPI generation (beta) produces the spec from the org's real objects and fields, including custom ones.
+  </Step>
+  <Step title="An overlay adds what the generator leaves out">
+    Summaries, descriptions and tags live in an OpenAPI Overlay file, so regenerating the spec never wipes them.
+  </Step>
+  <Step title="Every pull request is checked">
+    Postman governance lint and a breaking-change check run on every change. Deleting a field the contract depends on blocks the merge.
+  </Step>
+  <Step title="Merging publishes the docs">
+    A merge to `main` republishes this site from the merged spec.
+  </Step>
+</Steps>
+
+## For AI agents
+
+This site publishes [`/llms.txt`](/llms.txt) and a docs MCP server, so coding agents can read the same reference people do.

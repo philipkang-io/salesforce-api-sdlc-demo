@@ -1,0 +1,37 @@
+instances:
+  - url: sdlc-loyalty-demo.docs.buildwithfern.com
+    edit-this-page:
+      github:
+        owner: philipkang-io
+        repo: salesforce-api-sdlc-demo
+        branch: main
+
+title: Loyalty Member API | SDLC demo
+
+layout:
+  searchbar-placement: header
+  tabs-placement: header
+
+tabs:
+  guides:
+    display-name: Guides
+    icon: book-open
+  api:
+    display-name: API Reference
+    icon: puzzle
+
+navigation:
+  - tab: guides
+    layout:
+      - section: Get started
+        contents:
+          - page: Overview
+            path: docs/pages/overview.mdx
+          - page: Quickstart
+            path: docs/pages/quickstart.mdx
+          - page: How these docs stay current
+            path: docs/pages/how-it-works.mdx
+  - tab: api
+    layout:
+      - api: API Reference
+        skip-slug: true

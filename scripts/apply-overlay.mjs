@@ -3,9 +3,10 @@
 // with every overlay in api/overlay/ applied, in file name order.
 //
 // Supports the OpenAPI Overlay 1.0 `update` and `remove` actions with simple
-// targets: $, .key and ['key'] segments (no wildcards or filters). A target that
-// matches nothing fails the build, so an overlay never silently stops applying
-// after Salesforce changes the spec.
+// targets: $, .key, ['key'] and [?(@.name=='value')] segments (the last picks
+// the array element whose name matches, e.g. a parameter). No wildcards. A
+// target that matches nothing fails the build, so an overlay never silently
+// stops applying after Salesforce changes the spec.
 //
 // Usage: node scripts/apply-overlay.mjs [--check]
 //   --check  exit 1 if api/openapi.yaml is not up to date (used by the PR gate)
@@ -21,12 +22,12 @@ const outputPath = path.join(repoRoot, "api", "openapi.yaml");
 function parseTarget(target) {
   if (!target.startsWith("$")) throw new Error(`target must start with $: ${target}`);
   const keys = [];
-  const re = /\.([A-Za-z0-9_-]+)|\['([^']+)'\]/gy;
+  const re = /\.([A-Za-z0-9_-]+)|\['([^']+)'\]|\[\?\(@\.name=='([^']+)'\)\]/gy;
   re.lastIndex = 1;
   while (re.lastIndex < target.length) {
     const m = re.exec(target);
     if (!m) throw new Error(`unsupported target syntax: ${target}`);
-    keys.push(m[1] ?? m[2]);
+    keys.push(m[3] !== undefined ? { name: m[3] } : (m[1] ?? m[2]));
   }
   return keys;
 }
@@ -53,9 +54,16 @@ for (const file of overlays) {
     const keys = parseTarget(action.target);
     let parent = null;
     let node = spec;
+    let last;
     for (const key of keys) {
       parent = node;
-      node = node?.[key];
+      if (typeof key === "object") {
+        last = Array.isArray(node) ? node.findIndex((item) => item?.name === key.name) : -1;
+        node = last >= 0 ? node[last] : undefined;
+      } else {
+        last = key;
+        node = node?.[key];
+      }
     }
     if (node === undefined) {
       console.error(`apply-overlay: ${file}: target matches nothing: ${action.target}`);
@@ -63,7 +71,8 @@ for (const file of overlays) {
     }
     if (action.remove) {
       if (!parent) throw new Error(`${file}: cannot remove the root`);
-      delete parent[keys.at(-1)];
+      if (Array.isArray(parent)) parent.splice(last, 1);
+      else delete parent[last];
     } else if (action.update) {
       deepMerge(node, action.update);
     }

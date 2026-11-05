@@ -1205,6 +1205,7 @@ components:
       description: Use Session Id or Access Token as valid bearer token to authenticate with Salesforce. Access Token could be retrieved via any supported OAuth2 flows listed or not listed here (e.g. JWT Bearer Token Flow).To obtain a session ID, you can use the SOAP API login() call or through the Salesforce CLI.
       scheme: bearer
       type: http
+      x-fern-playground-description: Paste an access token from the External Client App's client credentials flow (see the Quickstart). The demo presenter uses `make token-copy`, which copies a fresh token to the clipboard.
     oAuth2:
       description: 'For more information on all supported OAuth Flows, please see ''https://help.salesforce.com/articleView?id=remoteaccess_oauth_flows.htm&type=5''. For more information on all available scope options, please see ''https://help.salesforce.com/articleView?id=remoteaccess_oauth_tokens_scopes.htm&type=5#oauth_scopes''. '
       flows:
@@ -1273,6 +1274,8 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
       responses:
         '200':
           content:
@@ -1370,10 +1373,21 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
       requestBody:
         content:
           application/json:
+            schema:
+              $ref: '#/components/schemas/SObject'
             examples:
+              Loyalty_Member__c:
+                summary: Loyalty Member Example
+                value:
+                  Name: SDLC-Demo-TryIt
+                  Tier__c: Silver
+                  Points_Balance__c: 500
+                  Enrolled_On__c: '2026-11-18'
               Account:
                 summary: Account Example
                 value:
@@ -1385,8 +1399,6 @@ paths:
                   FirstName: Some
                   LastName: Name
                   apiSObjectType: Contact
-            schema:
-              $ref: '#/components/schemas/SObject'
         required: true
       responses:
         '201':
@@ -1475,18 +1487,22 @@ paths:
           required: true
           schema:
             type: string
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
         - in: query
           name: start
           required: true
           schema:
             format: date-time
             type: string
+          example: '2026-11-01T00:00:00Z'
         - in: query
           name: end
           required: true
           schema:
             format: date-time
             type: string
+          example: '2026-11-18T23:59:00Z'
       responses:
         '200':
           content:
@@ -1619,6 +1635,8 @@ paths:
           required: true
           schema:
             type: string
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
         - description: 'An optional header specifying a date and time. The request returns records that have been modified after that date and time. The format is EEE, dd MMM yyyy HH:mm:ss z. For example: If-Modified-Since: Mon, 30 Nov 2020 08:34:54 MST.'
           in: header
           name: If-Modified-Since
@@ -1726,18 +1744,22 @@ paths:
           required: true
           schema:
             type: string
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
         - in: query
           name: start
           required: true
           schema:
             format: date-time
             type: string
+          example: '2026-11-01T00:00:00Z'
         - in: query
           name: end
           required: true
           schema:
             format: date-time
             type: string
+          example: '2026-11-18T23:59:00Z'
       responses:
         '200':
           content:
@@ -1868,12 +1890,15 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
-        - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
+        - description: The record ID. To try it, run Create a record first and paste the id it returns.
           in: path
           name: id
           required: true
           schema:
             type: string
+          example: PASTE-ID-FROM-CREATE
       responses:
         '204':
           description: Status Code 204
@@ -1942,7 +1967,7 @@ paths:
                 type: array
           description: Status Code 503
       summary: Delete a record
-      description: Deletes a record by ID. Deleted records go to the Recycle Bin.
+      description: Deletes a record by ID. Deleted records go to the Recycle Bin. Success returns 204 No Content with an empty body.
       tags:
         - Records
     description: Accesses records based on the specified object ID. Retrieves, updates, or deletes records. This resource can also be used to retrieve field values. Use the GET method to retrieve records or fields, the DELETE method to delete records, and the PATCH method to update records.
@@ -1954,18 +1979,22 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
-        - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
+        - description: The record ID. The example is Ada Lovelace (M-1001), a demo member.
           in: path
           name: id
           required: true
           schema:
             type: string
+          example: a00fj00002l1vwEAAQ
         - description: A comma-delimited list of fields to get values for. For example, ?fields=name,description,numberofemployees,industry. An optional query parameter that can only be used with GET.
           in: query
           name: fields
           required: false
           schema:
             type: string
+          example: Name,Member_Number__c,Tier__c,Points_Balance__c,Enrolled_On__c
         - description: 'An optional header specifying a date and time. The request returns records that have been modified after that date and time. The format is EEE, dd MMM yyyy HH:mm:ss z For example: If-Modified-Since: Mon, 30 Nov 2020 08:34:54 MST.'
           in: header
           name: If-Modified-Since
@@ -2081,12 +2110,15 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/SObjectType'
-        - description: The identifier of the object. For example, 001R0000005hDFYIA2. A required path parameter for all methods (GET, PATCH, and DELETE).
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
+        - description: The record ID. The example is Grace Hopper (M-1002), a demo member you can update.
           in: path
           name: id
           required: true
           schema:
             type: string
+          example: a00fj00002l1yIzAAI
         - description: 'An optional header, which can only be used with PATCH, specifying the format for the request and response. Possible choices are: Content-Type: application/json Content-Type: application/xml'
           in: header
           name: Content-Type
@@ -2096,7 +2128,14 @@ paths:
       requestBody:
         content:
           application/json:
+            schema:
+              $ref: '#/components/schemas/SObject'
             examples:
+              Loyalty_Member__c:
+                summary: Loyalty Member Example
+                value:
+                  Tier__c: Gold
+                  Points_Balance__c: 12000
               Account:
                 summary: Account Example
                 value:
@@ -2108,8 +2147,6 @@ paths:
                   FirstName: Some
                   LastName: Name
                   apiSObjectType: Contact
-            schema:
-              $ref: '#/components/schemas/SObject'
         required: true
       responses:
         '204':
@@ -2179,7 +2216,7 @@ paths:
                 type: array
           description: Status Code 503
       summary: Update a record
-      description: Updates the given fields of a record. Fields left out of the request are not changed.
+      description: Updates the given fields of a record. Fields left out of the request are not changed. Success returns 204 No Content with an empty body; use Get a record to see the change.
       tags:
         - Records
     x-sfdc:
@@ -2194,6 +2231,8 @@ paths:
           required: true
           schema:
             type: string
+          x-fern-default: Loyalty_Member__c
+          example: Loyalty_Member__c
         - in: path
           name: id
           required: true
@@ -2280,6 +2319,7 @@ paths:
       description: Returns the binary content of a file field, such as an attachment body.
       tags:
         - Records
+      x-fern-explorer: false
     x-sfdc:
       api-domain: Platform
       api-sub-domain: SObjects
