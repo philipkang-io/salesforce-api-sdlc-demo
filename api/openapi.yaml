@@ -1892,12 +1892,13 @@ paths:
             $ref: '#/components/schemas/SObjectType'
           x-fern-default: Loyalty_Member__c
           example: Loyalty_Member__c
-        - description: The record ID. To try it, create a record first and use the id it returns.
+        - description: The record ID. To try it, run Create a record first and paste the id it returns.
           in: path
           name: id
           required: true
           schema:
             type: string
+          example: PASTE-ID-FROM-CREATE
       responses:
         '204':
           description: Status Code 204
@@ -1966,7 +1967,7 @@ paths:
                 type: array
           description: Status Code 503
       summary: Delete a record
-      description: Deletes a record by ID. Deleted records go to the Recycle Bin.
+      description: Deletes a record by ID. Deleted records go to the Recycle Bin. Success returns 204 No Content with an empty body.
       tags:
         - Records
     description: Accesses records based on the specified object ID. Retrieves, updates, or deletes records. This resource can also be used to retrieve field values. Use the GET method to retrieve records or fields, the DELETE method to delete records, and the PATCH method to update records.
@@ -2215,7 +2216,7 @@ paths:
                 type: array
           description: Status Code 503
       summary: Update a record
-      description: Updates the given fields of a record. Fields left out of the request are not changed.
+      description: Updates the given fields of a record. Fields left out of the request are not changed. Success returns 204 No Content with an empty body; use Get a record to see the change.
       tags:
         - Records
     x-sfdc:

@@ -31,12 +31,12 @@ actions:
   - target: $.paths['/sobjects/{sObject}/{id}'].patch
     update:
       summary: Update a record
-      description: Updates the given fields of a record. Fields left out of the request are not changed.
+      description: Updates the given fields of a record. Fields left out of the request are not changed. Success returns 204 No Content with an empty body; use Get a record to see the change.
       tags: [Records]
   - target: $.paths['/sobjects/{sObject}/{id}'].delete
     update:
       summary: Delete a record
-      description: Deletes a record by ID. Deleted records go to the Recycle Bin.
+      description: Deletes a record by ID. Deleted records go to the Recycle Bin. Success returns 204 No Content with an empty body.
       tags: [Records]
   - target: $.paths['/sobjects/{sObject}/{id}/{blobField}'].get
     update:
@@ -134,7 +134,8 @@ actions:
             apiSObjectType: Contact
   - target: $.paths['/sobjects/{sObject}/{id}'].delete.parameters[?(@.name=='id')]
     update:
-      description: The record ID. To try it, create a record first and use the id it returns.
+      example: PASTE-ID-FROM-CREATE
+      description: The record ID. To try it, run Create a record first and paste the id it returns.
   # Put a Loyalty Member example first (Try it uses the first one); keep
   # Salesforce's Account and Contact examples after it.
   - target: $.paths['/sobjects/{sObject}'].post.requestBody.content['application/json'].examples
