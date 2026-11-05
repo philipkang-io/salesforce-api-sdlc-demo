@@ -1,7 +1,7 @@
 # One command surface for local work and CI. Run `make help`.
 
 .DEFAULT_GOAL := help
-.PHONY: help setup token generate build build-check lint compat check
+.PHONY: help setup token generate build build-check lint compat check smoke cleanup
 
 help: ## List targets
 	@awk 'BEGIN{FS=":.*##"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  %-12s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -31,3 +31,9 @@ compat: ## Fail if api/openapi.yaml breaks the approved baseline
 
 check: build-check lint compat ## Everything the PR gate runs
 	@echo "check passed"
+
+smoke: ## Run the smoke collection against the Salesforce org (creates and deletes one test record)
+	@npm run --silent smoke -- --no-report-events
+
+cleanup: ## Delete SDLC-Demo-* test records left behind by a failed run
+	@npm run --silent cleanup

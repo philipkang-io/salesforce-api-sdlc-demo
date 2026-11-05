@@ -12,7 +12,9 @@
     "generate": "node scripts/generate-spec.mjs",
     "build": "node scripts/apply-overlay.mjs",
     "build-check": "node scripts/apply-overlay.mjs --check",
-    "compat": "node scripts/compat-gate.mjs"
+    "compat": "node scripts/compat-gate.mjs",
+    "smoke": "node scripts/run-smoke.mjs",
+    "cleanup": "node scripts/cleanup.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.0"
