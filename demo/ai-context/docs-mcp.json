@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "loyalty-docs": {
+      "type": "http",
+      "url": "https://sdlc-loyalty-demo.docs.buildwithfern.com/_mcp/server"
+    }
+  }
+}
