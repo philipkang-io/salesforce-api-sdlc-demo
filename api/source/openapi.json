@@ -2471,16 +2471,16 @@
                 "dataTranslationEnabled": {
                   "type": "boolean"
                 },
-                "restrictedDelete": {
+                "namePointing": {
                   "type": "boolean"
                 },
                 "deprecatedAndHidden": {
                   "type": "boolean"
                 },
-                "namePointing": {
+                "dependentPicklist": {
                   "type": "boolean"
                 },
-                "dependentPicklist": {
+                "restrictedDelete": {
                   "type": "boolean"
                 },
                 "highScaleNumber": {
@@ -2657,10 +2657,10 @@
                 "field": {
                   "type": "string"
                 },
-                "restrictedDelete": {
+                "deprecatedAndHidden": {
                   "type": "boolean"
                 },
-                "deprecatedAndHidden": {
+                "restrictedDelete": {
                   "type": "boolean"
                 },
                 "cascadeDelete": {
@@ -2758,6 +2758,72 @@
             "format": "date-time"
           }
         }
+      },
+      "Loyalty_Member__c": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SObject"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "Id": {
+                "type": "string",
+                "readOnly": true
+              },
+              "OwnerId": {
+                "type": "string",
+                "description": "ID of the assigned owner of the custom object record. If the custom object becomes the detail side of a master-detail relationship, this field is removed, as ownership of the data is controlled by the master object, or by the primary master object for a custom object with two master-detail relationships.Custom objects on the detail side of a master-detail relationship can't have sharing rules, manual sharing, or queues, as these require the Owner field."
+              },
+              "IsDeleted": {
+                "type": "boolean",
+                "readOnly": true
+              },
+              "Name": {
+                "type": "string",
+                "description": "Identifier for the custom object record. This name appears in page layouts, related lists, lookup dialogs, search results, and key lists on tab home pages. By default, this field is added to the custom object page layout as a required field."
+              },
+              "CreatedDate": {
+                "type": "string",
+                "format": "date-time",
+                "readOnly": true
+              },
+              "CreatedById": {
+                "type": "string",
+                "description": "ID of the user who created the record.",
+                "readOnly": true
+              },
+              "LastModifiedDate": {
+                "type": "string",
+                "format": "date-time",
+                "readOnly": true
+              },
+              "LastModifiedById": {
+                "type": "string",
+                "description": "ID of the user who most recently changed the record.",
+                "readOnly": true
+              },
+              "SystemModstamp": {
+                "type": "string",
+                "format": "date-time",
+                "readOnly": true
+              },
+              "Member_Number__c": {
+                "type": "string"
+              },
+              "Tier__c": {
+                "type": "string"
+              },
+              "Points_Balance__c": {
+                "type": "number"
+              },
+              "Enrolled_On__c": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        ]
       },
       "Opportunity": {
         "allOf": [
@@ -3137,6 +3203,7 @@
         "enum": [
           "Account",
           "Contact",
+          "Loyalty_Member__c",
           "Opportunity"
         ]
       },

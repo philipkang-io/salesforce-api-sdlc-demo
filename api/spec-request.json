@@ -1,7 +1,16 @@
 {
   "apiVersion": "v68.0",
   "body": {
-    "resources": ["/sobjects/{sObject}/*"],
-    "sobjects": { "include": ["Account", "Contact", "Opportunity"] }
+    "resources": [
+      "/sobjects/{sObject}/*"
+    ],
+    "sobjects": {
+      "include": [
+        "Account",
+        "Contact",
+        "Opportunity",
+        "Loyalty_Member__c"
+      ]
+    }
   }
 }
