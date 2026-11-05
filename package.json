@@ -1,0 +1,14 @@
+{
+  "name": "salesforce-api-sdlc-demo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Spec-first SDLC automation on a Salesforce org's own generated OpenAPI spec",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "token": "node scripts/sf-token.mjs",
+    "generate": "node scripts/generate-spec.mjs"
+  }
+}

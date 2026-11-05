@@ -1,0 +1,17 @@
+# Secrets
+.env
+.envrc
+*.pem
+*.key
+
+# Dependencies and tool output
+node_modules/
+openapi-changes*.log
+openapi-changes*.md
+lint-results.json
+*.log
+
+# OS and editor
+.DS_Store
+.vscode/
+.idea/
