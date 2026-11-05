@@ -1,0 +1,100 @@
+name: Spec drift
+
+# Regenerates the spec from the Salesforce org. When the org changed (an admin
+# added, renamed or deleted a field), opens a pull request with the new spec,
+# so the change goes through the same PR gate as any code change.
+#
+# Pull requests opened with GITHUB_TOKEN do not trigger other workflows, so
+# this job dispatches the PR gate on the drift branch itself (workflow_dispatch
+# is the documented exception). Branch protection then sees the pr-gate check
+# on the PR's head commit.
+#
+# Needs: the repository secrets SF_MY_DOMAIN, SF_CLIENT_ID, SF_CLIENT_SECRET,
+# and the setting "Allow GitHub Actions to create and approve pull requests".
+
+on:
+  schedule:
+    - cron: "17 14 * * *" # daily, 07:17 PT
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: spec-drift
+  cancel-in-progress: false
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SF_MY_DOMAIN: ${{ secrets.SF_MY_DOMAIN }}
+      SF_CLIENT_ID: ${{ secrets.SF_CLIENT_ID }}
+      SF_CLIENT_SECRET: ${{ secrets.SF_CLIENT_SECRET }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Regenerate the spec from the Salesforce org
+        run: make generate
+
+      - name: Build api/openapi.yaml
+        run: make build
+
+      - name: Did the org change?
+        id: diff
+        run: |
+          if git diff --quiet -- api/source/openapi.json api/openapi.yaml; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No drift: the org's spec matches main." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Run the gate here too, only to describe the change in the PR body.
+      # The PR itself is judged by the pr-gate check.
+      - name: Compare with the approved baseline
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          set +e
+          node scripts/compat-gate.mjs > compat.txt 2>&1
+          echo "exit=$?" >> compat.txt
+
+      - name: Open a pull request with the new spec
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          branch="drift/$(date -u +%Y%m%d-%H%M%S)"
+          git config user.name "spec-drift[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add api/source/openapi.json api/openapi.yaml
+          git commit -m "Spec drift: the Salesforce org's spec changed"
+          git push origin "$branch"
+
+          if grep -q "^exit=0" compat.txt; then verdict="No breaking changes against the approved baseline."; else verdict="**Breaking changes against the approved baseline.** The PR gate will block this merge."; fi
+          {
+            echo "The daily regeneration found that the Salesforce org's spec no longer matches \`main\`. Someone changed the org (for example, added or deleted a field)."
+            echo
+            echo "$verdict"
+            echo
+            echo '```'
+            grep -v "^exit=" compat.txt
+            echo '```'
+            echo
+            echo "If the change is intended and approved, update \`api/baseline/openapi.yaml\` in this PR. If not, undo the change in the org."
+          } > body.md
+          gh pr create --base main --head "$branch" --title "Spec drift: the Salesforce org's spec changed" --body-file body.md
+
+          # GITHUB_TOKEN pull requests do not trigger workflows; dispatch the gate.
+          gh workflow run pr-gate.yml --ref "$branch"
