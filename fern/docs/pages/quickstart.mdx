@@ -1,0 +1,62 @@
+---
+title: Quickstart
+subtitle: Get a token and enroll your first loyalty member in two calls.
+---
+
+## 1. Get an access token
+
+The API uses OAuth 2.0. For server-to-server use, an External Client App with the **client credentials flow** issues a token for a configured "Run As" user.
+
+```bash
+curl -X POST "https://YOUR_DOMAIN.my.salesforce.com/services/oauth2/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=$SF_CLIENT_ID" \
+  -d "client_secret=$SF_CLIENT_SECRET"
+```
+
+The response contains `access_token` and `instance_url`. Send the token as `Authorization: Bearer <access_token>` on every call.
+
+<Warning>
+The token endpoint expects a form-encoded body, not JSON.
+</Warning>
+
+## 2. Enroll a Gold member
+
+```bash
+curl -X POST "$INSTANCE_URL/services/data/v68.0/sobjects/Loyalty_Member__c" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Name": "Ada Lovelace",
+    "Member_Number__c": "M-1001",
+    "Tier__c": "Gold",
+    "Points_Balance__c": 10000,
+    "Enrolled_On__c": "2026-11-18"
+  }'
+```
+
+A `201 Created` response returns the new record ID:
+
+```json
+{ "id": "a00fj00002kzjWAAAY", "success": true, "errors": [] }
+```
+
+## 3. Read it back
+
+```bash
+curl "$INSTANCE_URL/services/data/v68.0/sobjects/Loyalty_Member__c/a00fj00002kzjWAAAY?fields=Name,Tier__c,Points_Balance__c" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+## Errors
+
+Errors come back as an array, each entry with an `errorCode` and a `message`:
+
+```json
+[{ "errorCode": "NOT_FOUND", "message": "The requested resource does not exist" }]
+```
+
+## Try it in Postman
+
+The demo's Postman workspace has a smoke collection that runs this whole lifecycle (create, read, update, delete) with 52 tests. The same collection is in the [GitHub repo](https://github.com/philipkang-io/salesforce-api-sdlc-demo/tree/main/postman/collections).

@@ -1,0 +1,35 @@
+---
+title: Overview
+subtitle: Read and manage loyalty program members through the Salesforce REST API.
+---
+
+<Note>
+This is a demo site for an SDLC automation webinar. It documents a Salesforce Developer Edition org, not a production service.
+</Note>
+
+The Loyalty Member API is the standard Salesforce sObjects REST API, applied to the `Loyalty_Member__c` custom object and to the Account, Contact and Opportunity standard objects.
+
+## What you can do
+
+| Task | Operation |
+|---|---|
+| Enroll a member | [Create a record](/api-reference/records/create-s-object) on `Loyalty_Member__c` |
+| Look up a member | [Get a record](/api-reference/records/get-s-object) by ID |
+| Change a member's tier or points | [Update a record](/api-reference/records/update-s-object) |
+| Remove a member | [Delete a record](/api-reference/records/delete-s-object) |
+| See which fields exist | [Describe an object](/api-reference/object-metadata/describe-s-object) |
+| Sync changes to another system | [List updated records](/api-reference/change-tracking/get-updated-s-objects) and [List deleted records](/api-reference/change-tracking/get-deleted-s-objects) |
+
+## The Loyalty Member object
+
+| Field | Type | Notes |
+|---|---|---|
+| `Name` | Text | Member name |
+| `Member_Number__c` | Text (20) | Unique, external ID |
+| `Tier__c` | Picklist | `Silver`, `Gold` or `Platinum` |
+| `Points_Balance__c` | Number | Whole points |
+| `Enrolled_On__c` | Date | `YYYY-MM-DD` |
+
+In every path, `{sObject}` is the object's API name, for example `Loyalty_Member__c`.
+
+Next: [Quickstart](/guides/get-started/quickstart).
