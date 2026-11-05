@@ -1,0 +1,78 @@
+name: API Catalog evidence
+
+# After a merge to main: sync the spec to Spec Hub, then report spec lint and a
+# smoke run against the real Salesforce org to Postman API Catalog.
+#
+# Catalog attributes lint to a service by Spec Hub spec ID, and CI runs by
+# cloud collection ID plus the workspace's Git link (commit, branch, author).
+# The IDs below are not secrets. Credentials come from repository secrets:
+# POSTMAN_API_KEY, SF_MY_DOMAIN, SF_CLIENT_ID, SF_CLIENT_SECRET.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - api/**
+      - postman/**
+      - scripts/run-smoke.mjs
+      - .github/workflows/catalog-evidence.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-evidence
+  cancel-in-progress: false
+
+env:
+  WORKSPACE_ID: 9ff1b9e7-36cf-4751-b696-e081a98ac499
+  SPEC_ID: af2d516e-aca4-469d-b710-16815e784c43
+  SMOKE_COLLECTION_ID: 52509354-dec5cd76-b18a-4efd-bf52-92b0c085b1f6
+  CI_ENVIRONMENT_ID: 52509354-c8fa87ea-d07c-404d-8def-8356e0823c18
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+      SF_MY_DOMAIN: ${{ secrets.SF_MY_DOMAIN }}
+      SF_CLIENT_ID: ${{ secrets.SF_CLIENT_ID }}
+      SF_CLIENT_SECRET: ${{ secrets.SF_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20
+
+      - name: Install Postman CLI
+        run: npm install --global postman-cli@1.71.0
+
+      - name: Sign in to Postman
+        run: postman login --with-api-key "$POSTMAN_API_KEY"
+
+      # Spec Hub holds a copy of api/openapi.yaml; keep it current with main.
+      - name: Sync api/openapi.yaml to Spec Hub
+        run: |
+          node -e '
+            const fs = require("fs");
+            const body = JSON.stringify({ content: fs.readFileSync("api/openapi.yaml", "utf8") });
+            fetch(`https://api.postman.com/specs/${process.env.SPEC_ID}/files/openapi.yaml`, {
+              method: "PATCH",
+              headers: { "X-Api-Key": process.env.POSTMAN_API_KEY, "Content-Type": "application/json" },
+              body,
+            }).then(async (r) => {
+              if (!r.ok) { console.error(`Spec Hub sync failed: HTTP ${r.status} ${await r.text()}`); process.exit(1); }
+              console.log("Spec Hub spec updated");
+            });
+          '
+
+      - name: Lint the Spec Hub spec and report to API Catalog
+        run: postman spec lint "$SPEC_ID" --workspace-id "$WORKSPACE_ID" --report-events
+
+      - name: Run smoke tests against the Salesforce org and report to API Catalog
+        run: node scripts/run-smoke.mjs "$SMOKE_COLLECTION_ID" -e "$CI_ENVIRONMENT_ID" --report-events
