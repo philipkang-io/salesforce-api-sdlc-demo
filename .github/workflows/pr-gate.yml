@@ -1,0 +1,63 @@
+name: PR gate
+
+# Runs on every pull request and on main. Branch protection on main requires
+# the `pr-gate` check, so a red run blocks the merge.
+#
+#   1. api/openapi.yaml must match api/source/openapi.json + api/overlay/
+#   2. Postman governance lint must report no errors
+#   3. The spec must not break the approved baseline (api/baseline/openapi.yaml)
+#
+# Needs the repository secret POSTMAN_API_KEY for the lint step. Lint results
+# from pull requests are not reported to API Catalog; catalog-evidence.yml
+# reports them after merge.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 20
+          cache: npm
+
+      # Also downloads the openapi-changes binary (postinstall of @pb33f/openapi-changes).
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Spec is built from the generated spec and the overlays
+        run: make build-check
+
+      - name: Breaking-change check against the approved baseline
+        run: make compat
+
+      - name: Install Postman CLI
+        run: npm install --global postman-cli@1.71.0
+
+      - name: Postman governance lint
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+        run: |
+          if [ -z "$POSTMAN_API_KEY" ]; then
+            echo "::error::POSTMAN_API_KEY is not set (repository secret)"
+            exit 1
+          fi
+          postman login --with-api-key "$POSTMAN_API_KEY"
+          make lint

@@ -1,0 +1,44 @@
+# Breaking-change policy for openapi-changes 0.2.7.
+#
+# Documentation edits (summaries, descriptions, tags, examples) are advisory.
+# Everything else inherits the tool's default breaking-change rules: removed
+# operations, parameters, schema properties, response codes, security and so on.
+info:
+  summary: {added: false, modified: false, removed: false}
+  description: {added: false, modified: false, removed: false}
+
+pathItem:
+  summary: {added: false, modified: false, removed: false}
+  description: {added: false, modified: false, removed: false}
+
+operation:
+  summary: {added: false, modified: false, removed: false}
+  description: {added: false, modified: false, removed: false}
+  tags: {added: false, modified: false, removed: false}
+
+parameter:
+  description: {added: false, modified: false, removed: false}
+  example: {added: false, modified: false, removed: false}
+  examples: {added: false, modified: false, removed: false}
+
+requestBody:
+  description: {added: false, modified: false, removed: false}
+
+response:
+  description: {added: false, modified: false, removed: false}
+  examples: {added: false, modified: false, removed: false}
+
+schema:
+  title: {added: false, modified: false, removed: false}
+  description: {added: false, modified: false, removed: false}
+  example: {added: false, modified: false, removed: false}
+  examples: {added: false, modified: false, removed: false}
+
+tag:
+  summary: {added: false, modified: false, removed: false}
+  description: {added: false, modified: false, removed: false}
+
+example:
+  summary: {added: false, modified: false, removed: false}
+  description: {added: false, modified: false, removed: false}
+  value: {added: false, modified: false, removed: false}

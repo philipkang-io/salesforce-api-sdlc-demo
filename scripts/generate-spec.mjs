@@ -6,6 +6,9 @@
 // POST the request, poll the job until it completes, then download the results.
 // Salesforce keeps the results for 48 hours.
 //
+// Salesforce does not return object keys in a stable order, so keys are sorted
+// before saving. A diff in api/source/openapi.json is then always a real change.
+//
 // Never hand-edit api/source/openapi.json; fixes belong in the overlay.
 //
 // Usage: node scripts/generate-spec.mjs [output path]
@@ -52,7 +55,14 @@ while (status !== "COMPLETED") {
   status = (await call(`${base}/${job.id}`)).apiTaskStatus;
 }
 
-const spec = await call(`${base}/${job.id}/results`);
+const sortKeys = (value) =>
+  Array.isArray(value)
+    ? value.map(sortKeys)
+    : value && typeof value === "object"
+      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, sortKeys(value[key])]))
+      : value;
+
+const spec = sortKeys(await call(`${base}/${job.id}/results`));
 fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, `${JSON.stringify(spec, null, 2)}\n`);
 

@@ -1,0 +1,55 @@
+# OpenAPI Overlay 1.0: our fixes on top of the spec Salesforce generates.
+#
+# Salesforce's generator leaves every operation without a summary, which
+# Postman governance reports as 9 errors. The fixes live here, not in
+# api/source/openapi.json, so regenerating the spec never wipes them.
+overlay: 1.0.0
+info:
+  title: Summaries, descriptions and tags for the Salesforce sObjects API
+  version: 1.0.0
+actions:
+  - target: $.paths['/sobjects/{sObject}'].get
+    update:
+      summary: Get object metadata
+      description: Returns basic metadata for an object, plus its most recently used records.
+      tags: [Object metadata]
+  - target: $.paths['/sobjects/{sObject}/describe'].get
+    update:
+      summary: Describe an object
+      description: Returns every field, relationship and setting of an object, including custom fields.
+      tags: [Object metadata]
+  - target: $.paths['/sobjects/{sObject}'].post
+    update:
+      summary: Create a record
+      description: Creates a record of the given object and returns its ID.
+      tags: [Records]
+  - target: $.paths['/sobjects/{sObject}/{id}'].get
+    update:
+      summary: Get a record
+      description: Returns a record by ID. Use the fields parameter to return only the fields you need.
+      tags: [Records]
+  - target: $.paths['/sobjects/{sObject}/{id}'].patch
+    update:
+      summary: Update a record
+      description: Updates the given fields of a record. Fields left out of the request are not changed.
+      tags: [Records]
+  - target: $.paths['/sobjects/{sObject}/{id}'].delete
+    update:
+      summary: Delete a record
+      description: Deletes a record by ID. Deleted records go to the Recycle Bin.
+      tags: [Records]
+  - target: $.paths['/sobjects/{sObject}/{id}/{blobField}'].get
+    update:
+      summary: Get a file field
+      description: Returns the binary content of a file field, such as an attachment body.
+      tags: [Records]
+  - target: $.paths['/sobjects/{sObject}/updated'].get
+    update:
+      summary: List updated records
+      description: Returns the IDs of records updated between the start and end times. Use it to sync changes.
+      tags: [Change tracking]
+  - target: $.paths['/sobjects/{sObject}/deleted'].get
+    update:
+      summary: List deleted records
+      description: Returns the IDs of records deleted between the start and end times. Use it to sync deletions.
+      tags: [Change tracking]

@@ -9,6 +9,15 @@
   },
   "scripts": {
     "token": "node scripts/sf-token.mjs",
-    "generate": "node scripts/generate-spec.mjs"
+    "generate": "node scripts/generate-spec.mjs",
+    "build": "node scripts/apply-overlay.mjs",
+    "build-check": "node scripts/apply-overlay.mjs --check",
+    "compat": "node scripts/compat-gate.mjs"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@pb33f/openapi-changes": "^0.2.7"
   }
 }
