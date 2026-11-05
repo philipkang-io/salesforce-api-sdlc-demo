@@ -1,0 +1,361 @@
+{
+  "info": {
+    "_postman_id": "dec5cd76-b18a-4efd-bf52-92b0c085b1f6",
+    "name": "Salesforce sObjects Smoke",
+    "description": "Smoke tests against a real Salesforce org, using the API described by the org's own generated OpenAPI spec (api/openapi.yaml).\n\nLifecycle of one Loyalty_Member__c record: describe the object, create a record, read it, update it, delete it, and confirm it is gone. Every record is named SDLC-Demo-<run id> and deleted in the same run.\n\nThe collection gets its own token with the OAuth 2.0 client credentials flow. Set sfMyDomain, sfClientId and sfClientSecret in the environment (secrets in the vault, never in a committed file).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Describe Loyalty Member",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const fields = pm.response.json().fields.map((f) => f.name);",
+              "for (const name of ['Member_Number__c', 'Tier__c', 'Points_Balance__c', 'Enrolled_On__c']) {",
+              "  pm.test(`Field ${name} exists`, () => pm.expect(fields).to.include(name));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "id": "5da4f2fb-b3b8-426f-817c-c22336043839",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/sobjects/Loyalty_Member__c/describe",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sobjects",
+            "Loyalty_Member__c",
+            "describe"
+          ]
+        },
+        "description": "describeSObject: the object exists and exposes the four custom fields the integration depends on."
+      },
+      "response": []
+    },
+    {
+      "name": "Create Loyalty Member",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Create succeeded', () => pm.expect(body.success).to.equal(true));",
+              "pm.test('Returns a record ID', () => pm.expect(body.id).to.match(/^[a-zA-Z0-9]{18}$/));",
+              "pm.collectionVariables.set('memberId', body.id);"
+            ]
+          }
+        }
+      ],
+      "id": "d0feb66e-9e6f-4fcb-b2eb-f4fb670bfdf0",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Name\": \"SDLC-Demo-{{runId}}\",\n  \"Member_Number__c\": \"SDLC-{{runId}}\",\n  \"Tier__c\": \"Gold\",\n  \"Points_Balance__c\": 10000,\n  \"Enrolled_On__c\": \"2026-11-18\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/sobjects/Loyalty_Member__c",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sobjects",
+            "Loyalty_Member__c"
+          ]
+        },
+        "description": "createSObject: returns 201 with the new record ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Loyalty Member",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const m = pm.response.json();",
+              "pm.test('Name matches', () => pm.expect(m.Name).to.equal('SDLC-Demo-' + pm.collectionVariables.get('runId')));",
+              "pm.test('Tier is Gold', () => pm.expect(m.Tier__c).to.equal('Gold'));",
+              "pm.test('Points balance is 10000', () => pm.expect(m.Points_Balance__c).to.equal(10000));",
+              "pm.test('Enrolled on 2026-11-18', () => pm.expect(m.Enrolled_On__c).to.equal('2026-11-18'));"
+            ]
+          }
+        }
+      ],
+      "id": "c88fb33b-e768-44b8-ac1f-bb490be5ceae",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/sobjects/Loyalty_Member__c/{{memberId}}?fields=Name,Member_Number__c,Tier__c,Points_Balance__c,Enrolled_On__c",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sobjects",
+            "Loyalty_Member__c",
+            "{{memberId}}"
+          ],
+          "query": [
+            {
+              "key": "fields",
+              "value": "Name,Member_Number__c,Tier__c,Points_Balance__c,Enrolled_On__c"
+            }
+          ]
+        },
+        "description": "getSObject: the record reads back with the values just written."
+      },
+      "response": []
+    },
+    {
+      "name": "Upgrade Loyalty Member to Platinum",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "id": "e1df2caf-2336-4d84-80fb-482a63ccb1f9",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"Tier__c\": \"Platinum\",\n  \"Points_Balance__c\": 25000\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/sobjects/Loyalty_Member__c/{{memberId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sobjects",
+            "Loyalty_Member__c",
+            "{{memberId}}"
+          ]
+        },
+        "description": "updateSObject: returns 204 with no body."
+      },
+      "response": []
+    },
+    {
+      "name": "Get upgraded Loyalty Member",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "const m = pm.response.json();",
+              "pm.test('Tier is Platinum', () => pm.expect(m.Tier__c).to.equal('Platinum'));",
+              "pm.test('Points balance is 25000', () => pm.expect(m.Points_Balance__c).to.equal(25000));"
+            ]
+          }
+        }
+      ],
+      "id": "e50ffbba-ec60-42da-8b04-9203d16543f4",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/sobjects/Loyalty_Member__c/{{memberId}}?fields=Tier__c,Points_Balance__c",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sobjects",
+            "Loyalty_Member__c",
+            "{{memberId}}"
+          ],
+          "query": [
+            {
+              "key": "fields",
+              "value": "Tier__c,Points_Balance__c"
+            }
+          ]
+        },
+        "description": "getSObject: the update is visible."
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Loyalty Member",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ],
+      "id": "a8fe96ad-9d49-4aa6-ae7d-3ccd451462bb",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/sobjects/Loyalty_Member__c/{{memberId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sobjects",
+            "Loyalty_Member__c",
+            "{{memberId}}"
+          ]
+        },
+        "description": "deleteSObject: returns 204."
+      },
+      "response": []
+    },
+    {
+      "name": "Deleted Loyalty Member is gone",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+              "const errors = pm.response.json();",
+              "pm.test('Error body is an array with an errorCode', () => {",
+              "  pm.expect(errors).to.be.an('array').that.is.not.empty;",
+              "  pm.expect(errors[0]).to.have.property('errorCode');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "id": "a45f6206-d55e-4de5-bd6e-febeb0de8c93",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/sobjects/Loyalty_Member__c/{{memberId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "sobjects",
+            "Loyalty_Member__c",
+            "{{memberId}}"
+          ]
+        },
+        "description": "getSObject on a deleted record returns 404 with Salesforce's error format."
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{sfAccessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Get a token once per run (client credentials) and reuse it until it expires.",
+          "if (!pm.collectionVariables.get('runId')) {",
+          "  pm.collectionVariables.set('runId', String(Date.now()));",
+          "}",
+          "const expiresAt = Number(pm.collectionVariables.get('sfTokenExpiresAt') || 0);",
+          "if (pm.collectionVariables.get('sfAccessToken') && Date.now() < expiresAt) return;",
+          "const domain = (pm.variables.get('sfMyDomain') || '').replace(/\\/$/, '');",
+          "const clientId = pm.variables.get('sfClientId');",
+          "const clientSecret = pm.variables.get('sfClientSecret');",
+          "if (!domain || !clientId || !clientSecret) {",
+          "  throw new Error('Set sfMyDomain, sfClientId and sfClientSecret in the environment');",
+          "}",
+          "pm.sendRequest({",
+          "  url: domain + '/services/oauth2/token',",
+          "  method: 'POST',",
+          "  header: { 'Content-Type': 'application/x-www-form-urlencoded' },",
+          "  body: {",
+          "    mode: 'urlencoded',",
+          "    urlencoded: [",
+          "      { key: 'grant_type', value: 'client_credentials' },",
+          "      { key: 'client_id', value: clientId },",
+          "      { key: 'client_secret', value: clientSecret }",
+          "    ]",
+          "  }",
+          "}, (err, res) => {",
+          "  if (err || res.code !== 200) {",
+          "    throw new Error('Token request failed: ' + (err ? err.message : 'HTTP ' + res.code));",
+          "  }",
+          "  pm.collectionVariables.set('sfAccessToken', res.json().access_token);",
+          "  pm.collectionVariables.set('sfTokenExpiresAt', String(Date.now() + 60 * 60 * 1000));",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "apiVersion",
+      "value": "v68.0"
+    },
+    {
+      "key": "baseUrl",
+      "value": "{{sfMyDomain}}/services/data/{{apiVersion}}"
+    },
+    {
+      "key": "runId",
+      "value": ""
+    },
+    {
+      "key": "sfAccessToken",
+      "value": ""
+    },
+    {
+      "key": "sfTokenExpiresAt",
+      "value": ""
+    },
+    {
+      "key": "memberId",
+      "value": ""
+    }
+  ]
+}
