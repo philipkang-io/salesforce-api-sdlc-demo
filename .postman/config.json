@@ -1,0 +1,16 @@
+{
+  "workspace": {
+    "id": "9ff1b9e7-36cf-4751-b696-e081a98ac499"
+  },
+  "entities": {
+    "collections": [
+      "../postman/collections/Salesforce sObjects Smoke_52509354-dec5cd76-b18a-4efd-bf52-92b0c085b1f6.postman_collection.json"
+    ],
+    "environments": [
+      "../postman/environments/Salesforce Dev Org (CI)_52509354-c8fa87ea-d07c-404d-8def-8356e0823c18.postman_environment.json"
+    ],
+    "specs": [],
+    "flows": [],
+    "globals": []
+  }
+}
