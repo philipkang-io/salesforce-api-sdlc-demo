@@ -1,7 +1,7 @@
 # One command surface for local work and CI. Run `make help`.
 
 .DEFAULT_GOAL := help
-.PHONY: help setup token token-copy generate build build-check lint compat check smoke cleanup ai-context
+.PHONY: help setup token token-copy generate build build-check lint compat check smoke cleanup ai-context agent-chat
 
 help: ## List targets
 	@awk 'BEGIN{FS=":.*##"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  %-12s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -43,3 +43,6 @@ cleanup: ## Delete SDLC-Demo-* test records left behind by a failed run
 
 ai-context: ## Same prompt to Claude Code with and without the docs MCP, then score both
 	@demo/ai-context/run.sh
+
+agent-chat: ## Ask the Agentforce agent through the Agent API, e.g. make agent-chat Q="What tier is member M-1001?"
+	@node scripts/agent-chat.mjs "$(Q)"
